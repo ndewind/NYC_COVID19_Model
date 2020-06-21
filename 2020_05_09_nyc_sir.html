@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style type="text/css">
+
+	.bodyText { 
+		font-family: Arial, Helvetica, sans-serif;
+		margin-left: auto;
+		margin-right: auto;
+		max-width:70em;
+		text-align: justify;
+		text-justify: inter-word; }
+
+	.plotArea { 
+		font-family: Arial, Helvetica, sans-serif;
+		margin-left: auto;
+		margin-right: auto;
+		max-width:35em;
+		height:35em;
+		text-align: justify;
+		text-justify: inter-word;}
+	
+	.titleText { 
+		font-family: Arial, Helvetica, sans-serif;
+		margin-left: auto;
+		margin-right: auto;
+		max-width:70em }
+
+	.column {
+		float: left;
+		max-width: 35em;
+	}
+
+	/* Clear floats after the columns */
+	.row {
+		font-family: Arial, Helvetica, sans-serif;
+		margin-left: auto;
+		margin-right: auto;
+		max-width:70em;
+		text-align: justify;
+		text-justify: inter-word; 
+	}
+	.row:after {
+	  content: "";
+	  display: table;
+	  clear: both;
+	}
+	
+	.slidecontainer {
+	  <!--width: 100%;-->
+	  font-family: Arial, Helvetica, sans-serif;
+	  margin-left: auto;
+	  margin-right: auto;
+	  max-width:35em;
+	  text-align: left;
+	  text-justify: inter-word;
+	}
+
+	.slider {
+	  -webkit-appearance: none;
+	  width: 10em;
+	  font-family: Arial, Helvetica, sans-serif;
+	  margin-left: auto;
+	  margin-right: auto;
+	  <!--max-width:15em;-->
+	  text-align: left;
+	  text-justify: inter-word;
+	  height: 0.5em;
+	  background: #d3d3d3;
+	  outline: none;
+	  opacity: 0.7;
+	  -webkit-transition: .2s;
+	  transition: opacity .2s;
+	}
+
+	.slider:hover {
+	  opacity: 1;
+	}
+
+	.slider::-webkit-slider-thumb {
+	  -webkit-appearance: none;
+	  appearance: none;
+	  width: .5em;
+	  height: 1em;
+	  background: #4CAF50;
+	  cursor: pointer;
+	}
+
+	.slider::-moz-range-thumb {
+	  width: .5em;
+	  height: 1em;
+	  background: #4CAF50;
+	  cursor: pointer;
+	}
+	
+	
+</style>
+
+<head>
+	<!-- Load plotly.js into the DOM -->
+	<script src='https://cdn.plot.ly/plotly-latest.min.js'></script>
+	<!--<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>-->
+	<script src="scripts/2020_05_09/sir_nyc.js"></script>
+</head>
+
+<body>
+	
+	<div class="titleText">
+	
+		<h1> Interactive SIR Model of NYC COVID-19 Epidemic </h1>
+	
+		<p>by <a href="https://nickdewind.com/">Nick DeWind</a> May 10, 2020</p>
+		
+		<p><i>data updated May 21, 2020</i></p>
+		
+	</div>
+	
+	<div class="bodyText">
+	<p> This is an interactive Susceptible-Infected-Recovered (SIR) epidemiological
+    model of the New York City COVID-19 epidemic. You can manipulate the sliders below the plot to change the parameters 
+	of the model. For more information on the model see a short introduction I wrote
+    <a href="https://nickdewind.com/2020_04_29_Understanding_SIR.html">here</a>. </p>
+	</div>
+	
+	<div class="row">
+	
+		<div class="column">
+		
+			<div class="plotArea" id='myDiv'><!-- Plotly chart will be drawn inside this DIV --></div>
+			
+		</div>
+		
+		<div class="column">
+		
+			<div class="slidecontainer">
+			
+			  <p><input type="range" min="-31" max="70" value="39" class="slider" id="startSlide">
+			  Date 100th person infected&#58; <span id="startReport"></span></p>
+			  
+			  <!-- <p>R<sub>0</sub>&#58; <span id="r0Report"></span></p> -->
+			
+			  <p><input type="range" min="1" max="21" value="8" class="slider" id="recovDaySlide">
+			  Recovery Time&#58; <span id="recovDayReport"></span> Days</p>
+			  
+			  <p><input type="range" min="0" max="50" value="10" class="slider" id="ifrSlide">
+			  Infection Fatality Ratio&#58; <span id="ifrReport"></span>&#37;</p>
+			  
+			  <p><input type="range" min="0" max="30" value="15" class="slider" id="ddSlide">
+			  Death Delay&#58; <span id="ddReport"></span> Days</p>
+			  
+			  <p><input type="range" min="0" max="100" value="36" class="slider" id="transSlide">
+			  Pre-Lockdown Transmission Rate&#58; <span id="transReport"></span> Contacts per Day</p>
+			  
+			  <p><input type="range" min="-15" max="90" value="-1" class="slider" id="lockStartSlide">
+			  Lockdown Date&#58; <span id="lockStartReport"></span></p>
+			  
+			  <p><input type="range" min="0" max="100" value="26" class="slider" id="ldTransRateSlide">
+			  Lockdown Trans. Rate (% of pre-lockdown)&#58; <span id="ldTransRateReport"></span>&#37;</p>
+			  
+			  <p><input type="range" min="0" max="366" value="90" class="slider" id="lockEndSlide">
+			  Lockdown Duration&#58; <span id="lockEndReport"></span></p>
+			  
+			  <p><input type="range" min="0" max="120" value="80" class="slider" id="postLDTransRateSlide">
+			  Post-Lockdown Trans. Rate (% of pre-lockdown)&#58; <span id="postLDTransRateReport"></span>&#37;</p>
+			  
+			  <!--<input id="reset" type="button" value="Reset">-->
+			  
+			</div>
+		  
+		</div>
+		
+	</div>
+
+	<script>
+	
+	//
+	
+	// start date slider script
+	var startSlide = document.getElementById("startSlide");
+	var startReport = document.getElementById("startReport");
+	var startIndx = startSlide.value;
+	var baseDate = new Date(2020, 0, 1);
+	var startDate = new Date(baseDate);
+	startDate.setDate( baseDate.getDate() + Number(startIndx) )
+	startReport.innerHTML = startDate.toDateString();
+	startSlide.oninput = function() {
+	  startIndx = startSlide.value;
+	  startDate = new Date(baseDate);
+	  startDate.setDate( baseDate.getDate() + Number(startIndx) )
+	  startReport.innerHTML = startDate.toDateString();
+	  
+	  sirdt = calculate_SIRD(i0, ifr, transRate, recovDay, ndays, inter, startDate, lockStartDate, ldTransRate, lockEndDate, postLDTransRate, dd)
+	  plotSIRD(sirdt,savedXrange,savedYrange)
+	  initRelayOut()
+	}
+	
+	// recovery time slider script
+	var recovDaySlide = document.getElementById("recovDaySlide");
+	var recovDayReport = document.getElementById("recovDayReport");
+	recovDayReport.innerHTML = recovDaySlide.value;
+	let recovDay = recovDaySlide.value;
+	recovDaySlide.oninput = function() {
+	  recovDayReport.innerHTML = this.value;
+	  recovDay = this.value;
+	  //r0Report.innerHTML = (recovDay*transRate).toFixed(2);
+	  sirdt = calculate_SIRD(i0, ifr, transRate, recovDay, ndays, inter, startDate, lockStartDate, ldTransRate, lockEndDate, postLDTransRate, dd)
+	  plotSIRD(sirdt,savedXrange,savedYrange)
+	  initRelayOut()
+	}
+	
+	// transmission rate (prelockdown) slider script
+	var transSlide = document.getElementById("transSlide");
+	var transReport = document.getElementById("transReport");
+	transReport.innerHTML = transSlide.value/100;
+	let transRate = transSlide.value/100;
+	transSlide.oninput = function() {
+	  transReport.innerHTML = this.value/100;//update the html report
+	  transRate = this.value/100;//update the internal variable
+	  //r0Report.innerHTML = (recovDay*transRate).toFixed(2);
+	  sirdt = calculate_SIRD(i0, ifr, transRate, recovDay, ndays, inter, startDate, lockStartDate, ldTransRate, lockEndDate, postLDTransRate, dd)
+	  plotSIRD(sirdt,savedXrange,savedYrange)
+	  initRelayOut()
+	}
+	
+	// ifr slider script
+	var ifrSlide = document.getElementById("ifrSlide");
+	var ifrReport = document.getElementById("ifrReport");
+	ifrReport.innerHTML = ifrSlide.value/10;
+	let ifr = ifrSlide.value/1000;
+	ifrSlide.oninput = function() {
+	  ifrReport.innerHTML = this.value/10;//update the html report
+	  ifr = this.value/1000;//update the internal variable
+	  sirdt = calculate_SIRD(i0, ifr, transRate, recovDay, ndays, inter, startDate, lockStartDate, ldTransRate, lockEndDate, postLDTransRate, dd)
+	  plotSIRD(sirdt,savedXrange,savedYrange)
+	  initRelayOut()
+	}
+	
+	// death delay slider
+	var ddSlide = document.getElementById("ddSlide");
+	var ddReport = document.getElementById("ddReport");
+	ddReport.innerHTML = ddSlide.value;
+	let dd = ddSlide.value;
+	ddSlide.oninput = function() {
+	  ddReport.innerHTML = this.value;//update the html report
+	  dd = this.value;//update the internal variable
+	  sirdt = calculate_SIRD(i0, ifr, transRate, recovDay, ndays, inter, startDate, lockStartDate, ldTransRate, lockEndDate, postLDTransRate, dd)
+	  plotSIRD(sirdt,savedXrange,savedYrange)
+	  initRelayOut()
+	}
+	
+	// lockdown date slider
+	var lockStartSlide = document.getElementById("lockStartSlide");
+	var lockStartReport = document.getElementById("lockStartReport");
+	let lockStartIndx = lockStartSlide.value;
+	let lockBaseDate = new Date(2020, 2, 20);
+	let lockStartDate = new Date(lockBaseDate);
+	lockStartDate.setDate( lockBaseDate.getDate() + Number(lockStartIndx) )
+	lockStartReport.innerHTML = lockStartDate.toDateString();
+	lockStartSlide.oninput = function() {
+	  lockStartIndx = lockStartSlide.value;
+	  lockStartDate = new Date(lockBaseDate);
+	  lockStartDate.setDate( lockBaseDate.getDate() + Number(lockStartIndx) )
+	  lockStartReport.innerHTML = lockStartDate.toDateString();
+	  
+	  // update the post-lockdown info
+	  let lockEndBaseDate = new Date(lockStartDate);
+	  lockEndIndx = lockEndSlide.value;
+	  lockEndDate = new Date(lockEndBaseDate);
+	  lockEndDate.setDate( lockEndBaseDate.getDate() + Number(lockEndIndx) )
+	  lockEndReport.innerHTML = lockEndIndx + " Days (Ends on " + lockEndDate.toDateString() + ")";
+	  
+	  sirdt = calculate_SIRD(i0, ifr, transRate, recovDay, ndays, inter, startDate, lockStartDate, ldTransRate, lockEndDate, postLDTransRate, dd)
+	  plotSIRD(sirdt,savedXrange,savedYrange)
+	  initRelayOut()
+	}
+	
+	// transmission rate (lockdown) slider script
+	var ldTransRateSlide = document.getElementById("ldTransRateSlide");
+	var ldTransRateReport = document.getElementById("ldTransRateReport");
+	ldTransRateReport.innerHTML = ldTransRateSlide.value;
+	let ldTransRate = transRate * (ldTransRateSlide.value/100);
+	ldTransRateSlide.oninput = function() {
+	  ldTransRateReport.innerHTML = this.value;//update the html report
+	  ldTransRate =  transRate * (this.value/100);//update the internal variable
+	  //r0Report.innerHTML = (recovDay*ldTransRate).toFixed(2);
+	  sirdt = calculate_SIRD(i0, ifr, transRate, recovDay, ndays, inter, startDate, lockStartDate, ldTransRate, lockEndDate, postLDTransRate, dd)
+	  plotSIRD(sirdt,savedXrange,savedYrange)
+	  initRelayOut()
+	}
+	
+	// end lockdown date slider
+	var lockEndSlide = document.getElementById("lockEndSlide");
+	var lockEndReport = document.getElementById("lockEndReport");
+	let lockEndIndx = lockEndSlide.value;
+	let lockEndBaseDate = new Date(lockStartDate);
+	let lockEndDate = new Date(lockEndBaseDate);
+	lockEndDate.setDate( lockEndBaseDate.getDate() + Number(lockEndIndx) )
+	lockEndReport.innerHTML = lockEndIndx + " Days (Ends on " + lockEndDate.toDateString() + ")";
+	lockEndSlide.oninput = function() {
+	  lockEndIndx = lockEndSlide.value;
+	  lockEndDate = new Date(lockEndBaseDate);
+	  lockEndDate.setDate( lockEndBaseDate.getDate() + Number(lockEndIndx) )
+	  lockEndReport.innerHTML = lockEndIndx + " Days (Ends on " + lockEndDate.toDateString() + ")";
+	  sirdt = calculate_SIRD(i0, ifr, transRate, recovDay, ndays, inter, startDate, lockStartDate, ldTransRate, lockEndDate, postLDTransRate, dd)
+	  plotSIRD(sirdt,savedXrange,savedYrange)
+	  initRelayOut()
+	}
+	
+	// transmission rate (post-lockdown) slider script
+	var postLDTransRateSlide = document.getElementById("postLDTransRateSlide");
+	var postLDTransRateReport = document.getElementById("postLDTransRateReport");
+	postLDTransRateReport.innerHTML = postLDTransRateSlide.value;
+	let postLDTransRate = transRate * (postLDTransRateSlide.value/100);
+	postLDTransRateSlide.oninput = function() {
+	  postLDTransRateReport.innerHTML = this.value;//update the html report
+	  postLDTransRate =  transRate * (this.value/100);//update the internal variable
+	  //r0Report.innerHTML = (recovDay*ldTransRate).toFixed(2);
+	  sirdt = calculate_SIRD(i0, ifr, transRate, recovDay, ndays, inter, startDate, lockStartDate, ldTransRate, lockEndDate, postLDTransRate, dd)
+	  plotSIRD(sirdt,savedXrange,savedYrange)
+	  initRelayOut()
+	}
+	
+	// set the R0 (first time. will update with changes to recov or trans)
+	//r0Report.innerHTML = (recovDay*transRate).toFixed(2);
+	
+	
+	</script>
+
+	
+</body>
+
+<script>
+	var i0 = 100 / 8700000;
+	var ndays = 366;
+	var inter = 12;
+	var sirdt = calculate_SIRD(i0, ifr, transRate, recovDay, ndays, inter, startDate, lockStartDate, ldTransRate, lockEndDate, postLDTransRate, dd)
+	
+	var savedXrange = [];
+	var savedYrange = [];
+	
+	plotSIRD(sirdt,savedXrange,savedYrange)
+	graphDivObj = document.getElementById('myDiv');
+	initRelayOut()
+	
+	function initRelayOut(){
+		graphDivObj.on('plotly_relayout',
+		function(eventdata){  
+			/*alert( 'ZOOM!' + '\n\n' +
+				'Event data:' + '\n' + 
+				 JSON.stringify(eventdata) + '\n\n' +
+				'x-axis start:' + eventdata['xaxis.range[0]'] + '\n' +
+				'x-axis end:' + eventdata['xaxis.range[1]'] );*/
+				console.log(eventdata['xaxis.range[0]'])
+			if (eventdata['xaxis.range[0]'] !== undefined){
+			savedXrange = [eventdata['xaxis.range[0]'], eventdata['xaxis.range[1]']];
+			savedYrange = [eventdata['yaxis.range[0]'], eventdata['yaxis.range[1]']];
+			}else if(eventdata['xaxis2.range[0]'] !== undefined){
+			savedXrange = [eventdata['xaxis2.range[0]'], eventdata['xaxis2.range[1]']];
+			}else {
+			savedXrange = [];
+			savedYrange = [];
+			}
+			
+			console.log(savedXrange)
+			console.log(savedYrange)
+			
+			plotSIRD(sirdt,savedXrange,savedYrange)
+			graphDivObj = document.getElementById('myDiv');
+			initRelayOut()
+	
+		});
+	}
+	
+	/*myDivObj.on('plotly_doubleclick',
+    function(eventdata){  
+		savedXrange = [];
+		savedYrange = [];
+		console.log(savedXrange)
+		console.log(savedYrange)
+    });*/
+	
+	/*document.getElementById('reset').onclick = function(){
+		document.getElementById('startSlide').value = 39;
+		initStartSlide();
+	};
+	*/
+	
+	/*graphDivObj.on('plotly_relayout',
+    function(eventdata){  
+        alert( 'ZOOM!' + '\n\n' +
+            'Event data:' + '\n' + 
+             JSON.stringify(eventdata) + '\n\n' +
+            'x-axis start:' + eventdata['xaxis.range[0]'] + '\n' +
+            'x-axis end:' + eventdata['xaxis.range[1]'] );
+		savedXrange = [eventdata['xaxis.range[0]'], eventdata['xaxis.range[1]']];
+		savedYrange = [eventdata['yaxis.range[0]'], eventdata['yaxis.range[1]']];
+		console.log(savedXrange)
+		console.log(savedYrange)
+    });*/
+</script>
