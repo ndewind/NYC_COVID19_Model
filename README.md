@@ -1,0 +1,1 @@
+This is an interactive Susceptible-Infected-Recovered (SIR) epidemiological model of the New York City COVID-19 epidemic. You can manipulate the sliders below the plot to change the parameters of the model.
